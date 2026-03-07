@@ -5,104 +5,303 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Voice Live Agent Demo</title>
   <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f0f4f8;
+      background: linear-gradient(135deg, #e8eef5 0%, #f0f4f8 50%, #e4ecf4 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      color: #333;
+      min-height: 100vh;
+      color: #1a1a2e;
       text-align: center;
     }
 
+    .card {
+      background: #ffffff;
+      border-radius: 1rem;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      padding: 2.5rem 2.5rem 2rem;
+      max-width: 520px;
+      width: 90%;
+    }
+
+    .header-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0078d4, #005ea0);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .header-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: #ffffff;
+    }
+
     h1 {
-      font-size: 2rem;
-      margin-bottom: 1.2rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+      color: #1a1a2e;
     }
 
     .subtitle {
-      font-size: 1rem;
-      color: #555;
-      margin-bottom: 2rem;
+      font-size: 0.925rem;
+      color: #5a6a7e;
+      margin-bottom: 1.75rem;
+      line-height: 1.5;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      background: #f5f7fa;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #5a6a7e;
+      transition: all 0.3s ease;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #b0bec5;
+      transition: background 0.3s ease;
+    }
+
+    .status-bar.connected {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-bar.connected .status-dot {
+      background: #4caf50;
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
     }
 
     .controls {
       display: flex;
-      gap: 1rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
       justify-content: center;
+      margin-bottom: 1.5rem;
     }
 
     button {
-      padding: 0.85rem 1.75rem;
-      font-size: 1.05rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.925rem;
+      font-weight: 500;
       border: none;
       border-radius: 0.5rem;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: inherit;
+    }
+
+    button svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    button:focus-visible {
+      outline: 2px solid #0078d4;
+      outline-offset: 2px;
     }
 
     #startBtn {
       background-color: #0078d4;
-      color: white;
+      color: #ffffff;
     }
 
-    #startBtn:hover {
-      background-color: #005ea0;
+    #startBtn:hover:not(:disabled) {
+      background-color: #106ebe;
+      box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
     }
 
-    #stopBtn {
-      background-color: #e81123;
-      color: white;
+    #startBtn:active:not(:disabled) {
+      transform: scale(0.98);
     }
 
-    #stopBtn:disabled {
-      background-color: #f3b2b2;
+    #startBtn:disabled {
+      background-color: #a0c4e8;
       cursor: not-allowed;
     }
 
+    #stopBtn {
+      background-color: #ffffff;
+      color: #d13438;
+      border: 1.5px solid #d13438;
+    }
+
+    #stopBtn:hover:not(:disabled) {
+      background-color: #fde7e9;
+    }
+
+    #stopBtn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    #stopBtn:disabled {
+      color: #c4c4c4;
+      border-color: #e0e0e0;
+      cursor: not-allowed;
+    }
+
+    .transcript-area {
+      background: #f8f9fb;
+      border: 1px solid #e8ecf0;
+      border-radius: 0.625rem;
+      padding: 1rem;
+      min-height: 100px;
+      max-height: 200px;
+      overflow-y: auto;
+      text-align: left;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #3d4f5f;
+    }
+
+    .transcript-area:empty::before {
+      content: "Transcription will appear here…";
+      color: #b0bec5;
+      font-style: italic;
+    }
+
+    .transcript-area p {
+      margin: 0 0 0.4rem;
+      padding: 0;
+    }
+
+    .transcript-area p:last-child {
+      margin-bottom: 0;
+    }
+
+    .transcript-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #8795a6;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+
     audio {
-      margin-top: 2rem;
-      display: block;
+      display: none;
     }
 
     footer {
-      position: absolute;
-      bottom: 1rem;
-      font-size: 0.85rem;
-      color: #666;
+      margin-top: 1.5rem;
+      font-size: 0.78rem;
+      color: #8795a6;
+    }
+
+    footer span {
+      opacity: 0.6;
+      margin: 0 0.35rem;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 2rem 1.5rem 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+        justify-content: center;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>🎙️ Voice Live Demo UX</h1>
-  <div class="subtitle">Talk to an AI agent in real time. Click below to start.</div>
+  <div class="card" role="main">
+    <div class="header-icon" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Microphone</title><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.93V21h2v-3.07A7 7 0 0 0 19 11h-2Z"/></svg>
+    </div>
+    <h1>Voice Live Agent</h1>
+    <div class="subtitle">Talk to an AI agent in real time. Click below to start your conversation.</div>
 
-  <div class="controls">
-    <button id="startBtn" onclick="startStreaming()" title="Start talking to the voice agent">
-      Start Talking to Agent
-    </button>
-    <button id="stopBtn" onclick="stopStreaming()" disabled title="End the conversation with the agent">
-      Stop Conversation
-    </button>
+    <div class="status-bar" id="statusBar" role="status" aria-live="polite">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Ready</span>
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" onclick="startStreaming()" title="Start talking to the voice agent" aria-label="Start talking to the voice agent">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/><path d="M17 11a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.93V21h2v-3.07A7 7 0 0 0 19 11h-2Z"/></svg>
+        Start Conversation
+      </button>
+      <button id="stopBtn" onclick="stopStreaming()" disabled title="End the conversation" aria-label="End the conversation">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+        End Conversation
+      </button>
+    </div>
+
+    <div class="transcript-label">Live Transcript</div>
+    <div class="transcript-area" id="transcriptArea" aria-label="Live transcript" aria-live="polite"></div>
+
+    <!-- Ambient Scene: Backend handles ambient mixing via AMBIENT_PRESET env var -->
+    <audio id="ttsPlayer" autoplay></audio>
   </div>
 
-  <!-- Ambient Scene: Backend handles ambient mixing via AMBIENT_PRESET env var -->
-
-  <audio id="ttsPlayer" autoplay></audio>
-
   <footer>
-    Powered by Azure Voice Live • Demo Mode
+    Powered by Azure Voice Live <span>•</span> Demo Mode
   </footer>
 
   <script>
     let mediaStream, source, processor, socket;
     let audioContext = new AudioContext({ sampleRate: 24000 });
     let workletNode;
+
+    function setStatus(state, text) {
+      const bar = document.getElementById("statusBar");
+      bar.className = "status-bar" + (state === "connected" ? " connected" : "");
+      document.getElementById("statusText").textContent = text;
+    }
+
+    function appendTranscript(text) {
+      const area = document.getElementById("transcriptArea");
+      const p = document.createElement("p");
+      p.textContent = text;
+      area.appendChild(p);
+      area.scrollTop = area.scrollHeight;
+    }
 
     // Load the AudioWorkletProcessor
     async function loadAudioProcessor() {
@@ -174,8 +373,11 @@
     }
 
     function startStreaming() {
+      setStatus("default", "Connecting…");
+      document.getElementById("transcriptArea").innerHTML = "";
+
       let wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-      let wsHost = window.location.host; 
+      let wsHost = window.location.host;
       socket = new WebSocket(`${wsProtocol}://${wsHost}/web/ws`);
       socket.binaryType = "arraybuffer";
 
@@ -183,6 +385,7 @@
         console.log("WebSocket opened");
         await audioContext.resume();
         await startMicrophone();
+        setStatus("connected", "Listening…");
         document.getElementById("startBtn").disabled = true;
         document.getElementById("stopBtn").disabled = false;
       };
@@ -196,6 +399,7 @@
           }
           if (msg.Kind === "Transcription") {
             console.log("Transcript:", msg.Text);
+            appendTranscript(msg.Text);
           }
          }
         else if (event.data instanceof ArrayBuffer) {
@@ -214,6 +418,7 @@
       socket.onclose = () => {
         console.log("WebSocket closed");
         stopMicrophone();
+        setStatus("default", "Ready");
         document.getElementById("startBtn").disabled = false;
         document.getElementById("stopBtn").disabled = true;
       };
